@@ -8,23 +8,26 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./packages.nix
     ];
 
 
- programs.hyprland.enable = true;
+nix.settings.experimental-features = [ "nix-command" "flakes" ];
  
-
   # Bootloader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/nvme0n1";
-  boot.loader.grub.useOSProber = true;
+  boot.loader.grub = {
+    enable = true;
+    device = "/dev/nvme0n1";
+    extraConfig = ''
+      set theme=/boot/grub/themes/bsol/theme.txt
+    '';
+  };
+
+  programs.zsh.enable = true;
+  users.defaultUserShell = pkgs.zsh;
+
 
   networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -47,24 +50,14 @@
     LC_TIME = "cs_CZ.UTF-8";
   };
 
-  # Enable the X11 windowing system.
   services.xserver.enable = true;
-
-
-  # Enable the KDE Plasma Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
-
-  # Configure keymap in X11
+  services.xserver.displayManager.sddm.enable = true; 
+  services.xserver.windowManager.i3.enable = true; 
   services.xserver = {
     layout = "us";
-    xkbVariant = "";
   };
 
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
-
-hardware.bluetooth.enable = true;
+   hardware.bluetooth.enable = true;
 
   # Enable sound with pipewire.
   sound.enable = true;
@@ -75,12 +68,6 @@ hardware.bluetooth.enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
   # Enable touchpad support (enabled default in most desktopManager).
@@ -91,31 +78,19 @@ hardware.bluetooth.enable = true;
     isNormalUser = true;
     description = "e";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      firefox
-      bitwarden
-    #eww
-    ];
   };
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-              nixpkgs.config.permittedInsecurePackages = [
-                "electron-25.9.0"
-              ];
-
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
- kitty
- obsidian
- electron
- neovim
- wofi 
- arandr ];
+
+# automatically clear old configs
+nix.gc = {
+ automatic = true;
+ dates = "weekly";
+ options = "--delete-older-than 30d";
+};
+
+
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -126,6 +101,13 @@ hardware.bluetooth.enable = true;
   # };
 
   # List services that you want to enable:
+
+
+
+	 #networking.firewall.enable = true;
+
+
+
 
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
