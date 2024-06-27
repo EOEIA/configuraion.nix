@@ -1,4 +1,8 @@
-{ config, pkgs, ... }: {
+{
+  config,
+  pkgs,
+  ...
+}: {
   home = {
     username = "e";
     homeDirectory = "/home/e";
@@ -6,15 +10,14 @@
   };
 
   imports = [
-
-            ./modules/bash.nix
-            ./modules/hyprland.nix
-            ./modules/i3.nix
-            ./modules/kitty.nix
-#            ./modules/libvirt.nix
-#            ./modules/polybar
-#           ./modules/polybar.nix
-            ./modules/waybar.nix
-            ./modules/zsh.nix
+    ./modules/bash.nix
+    ./modules/hyprland.nix
+    ./modules/i3.nix
+    ./modules/kitty.nix
+    #            ./modules/libvirt.nix
+    #            ./modules/polybar
+    #           ./modules/polybar.nix
+    ./modules/waybar.nix
+    ./modules/zsh.nix
   ];
 }

@@ -1,32 +1,31 @@
-
-{ config, pkgs, ... }:
-
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ./packages.nix
-    ]; 
- programs.thunar.enable = true;
- programs.xfconf.enable = true;
- services.udisks2.enable = true;
- services.devmon.enable = true;
+  config,
+  pkgs,
+  ...
+}: {
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ./packages.nix
+  ];
+  programs.thunar.enable = true;
+  programs.xfconf.enable = true;
+  services.udisks2.enable = true;
+  services.devmon.enable = true;
 
-programs.thunar.plugins = with pkgs.xfce; [
-  thunar-archive-plugin
-  thunar-volman
-];
- services.gvfs.enable = true; # Mount, trash, and other functionalities
-# services.tumbler.enable = true; # Thumbnail support for images
+  programs.thunar.plugins = with pkgs.xfce; [
+    thunar-archive-plugin
+    thunar-volman
+  ];
+  services.gvfs.enable = true; # Mount, trash, and other functionalities
+  # services.tumbler.enable = true; # Thumbnail support for images
 
-
-#   virtualisation.virtualbox.host.enable = true;
- #  users.extraGroups.vboxusers.members = [ "e" ];
+  #   virtualisation.virtualbox.host.enable = true;
+  #  users.extraGroups.vboxusers.members = [ "e" ];
   # virtualisation.virtualbox.host.enableExtensionPack = true;
 
+  nix.settings.experimental-features = ["nix-command" "flakes"];
 
-nix.settings.experimental-features = [ "nix-command" "flakes" ];
- 
   boot.loader.grub = {
     enable = true;
     device = "/dev/nvme0n1";
@@ -38,7 +37,7 @@ nix.settings.experimental-features = [ "nix-command" "flakes" ];
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
 
-  networking.hostName = "nixos"; 
+  networking.hostName = "nixos";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -49,22 +48,18 @@ nix.settings.experimental-features = [ "nix-command" "flakes" ];
   # Select internationalisation properties.
   i18n.defaultLocale = "en_GB.UTF-8";
 
-
-
-  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = ["nvidia"];
   services.xserver.enable = true;
-  services.xserver.displayManager.sddm.enable = true; 
-  services.xserver.windowManager.i3.enable = true; 
+  services.xserver.displayManager.sddm.enable = true;
+  services.xserver.windowManager.i3.enable = true;
   services.xserver = {
     layout = "us";
   };
   programs.hyprland = {
-    # Install the packages from nixpkgs
     enable = true;
-    # Whether to enable XWayland
     xwayland.enable = true;
   };
-   hardware.bluetooth.enable = true;
+  hardware.bluetooth.enable = true;
 
   # Enable sound with pipewire.
   sound.enable = true;
@@ -77,19 +72,17 @@ nix.settings.experimental-features = [ "nix-command" "flakes" ];
     pulse.enable = true;
   };
 
-
   users.users.e = {
     isNormalUser = true;
     description = "e";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = ["networkmanager" "wheel"];
   };
 
-nix.gc = {
- automatic = true;
- dates = "weekly";
- options = "--delete-older-than 30d";
-};
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
 
   system.stateVersion = "23.11";
-
 }
