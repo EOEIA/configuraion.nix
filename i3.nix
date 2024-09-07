@@ -11,7 +11,7 @@
 ####################################
 focus_follows_mouse no
 focus_wrapping no
-for_window [class="^.*"] border pixel 1
+#for_window [class="^.*"] border pixel 1
 title_align center
 ######################################
 
@@ -110,16 +110,16 @@ bindsym $mod+Control+Shift+p move container to workspace 9
 ##############################
 
 # change focus
-bindsym $mod+h focus left
-bindsym $mod+j focus down
-bindsym $mod+k focus up
-bindsym $mod+l focus right
+bindsym $mod+n focus left
+bindsym $mod+e focus down
+bindsym $mod+i focus up
+bindsym $mod+a focus right
 
 # move focused window
-bindsym $mod+Shift+h move left
-bindsym $mod+Shift+j move down
-bindsym $mod+Shift+k move up
-bindsym $mod+Shift+l move right
+bindsym $mod+Shift+n move left
+bindsym $mod+Shift+e move down
+bindsym $mod+Shift+i move up
+bindsym $mod+Shift+a move right
 
 ##############################
 # Window Modifying Rules
@@ -129,14 +129,14 @@ bindsym $mod+Shift+l move right
 bindsym $mod+z split h
 
 # split in vertical orientation
-bindsym $mod+a split v
+bindsym $mod+v split v
 
 # enter fullscreen mode for the focused container
 bindsym $mod+m fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
 # bindsym $mod+s layout stacking
-bindsym $mod+e layout tabbed
+bindsym $mod+h layout tabbed
 bindsym $mod+t layout toggle split
 
 # toggle tiling / floating
@@ -172,34 +172,35 @@ exec --no-startup-id lxpolkit &
 
 
 ## App shortcuts
-
+bindsym $mod+k exec clipmenu
 # Browser
 bindsym $mod+w exec firefox
 
 # File Manager 
-bindsym $mod+n exec pcmanfm
+bindsym $mod+f exec pcmanfm
 
 # Screenshot : FlameShot
 bindsym Print exec flameshot full --path ~/Pictures/screenshots
-bindsym $mod+Print exec flameshot gui
+bindsym $mod+y exec flameshot gui
 
 # start a terminal
 bindsym $mod+Return exec kitty
 
 # Rofi
 #bindsym $mod+d exec rofi -show run -theme ~/.config/rofi/config/
-bindsym $mod+d exec --no-startup-id rofi -show run -show-icons -theme ~/.config/rofi/config/ -disable-history
+bindsym $mod+d exec --no-startup-id rofi -show run -show-icons -theme ~/.config/rofi/config.rasi -disable-history
 
 # kill focused window
 bindsym $mod+Shift+q kill
 
 # exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-msg exit"
+bindsym $mod+Shift+w exec "i3-nagbar -t warning -m 'Are you sure you want to exit i3?' -B 'Yes, exit i3' 'i3-msg exit'"
+
 
 # Lock the system
-#bindsym $mod+Shift+x exec i3lock-pixeled
-bindsym $mod+Shift+x exec i3lock
-
+#bindsym $mod+l exec i3lock-pixeled
+#bindsym $mod+Shift+x exec i3lock
+bindsym $mod+l exec i3lock
 # restart i3 inplace (preserves your layout/session, can be used to update i3)
 bindsym $mod+Shift+r restart
 
@@ -208,29 +209,56 @@ bindsym $mod+Shift+r restart
 #############################################
 # xorg commands
 #xrandr
-exec_always xrandr --output DP-1 --primary --mode 1920x1080 --pos 1080x157 --rotate normal --rate 165 --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate left --output DVI-D-1 --off
+exec_always xrandr --output DP-0 --primary --mode 1920x1080 --pos 1080x157 --rotate normal --rate 165 --output HDMI-0 --mode 1920x1080 --pos 0x0 --rotate left --output DVI-D-1 --off
 
 
 #exec xset s -dpms # Disable Display Power Management Signaling (prevent the display from turning off)
 #exec xset s off # Turn off the screen saver
 
 # compositor
-exec --no-startup-id sleep 2 && picom
+#exec --no-startup-id sleep 2 && picom
 
+
+exec --no-startup-id /usr/libexec/xdg-desktop-portal &
+exec --no-startup-id /usr/libexec/xdg-desktop-portal-gtk &
+exec --no-startup-id syncthing
 
 # bar
 #exec polybar --config=/home/e/nix/polybar
 # i3status bar configuration
 bar {
+### vertical monitor
     status_command i3status
-    output HDMI-1
+    output HDMI-0
+    colors {
+        background         #1e1e2e
+        statusline         #cdd6f4
+        focused_statusline #cdd6f4
+        focused_separator  #1e1e2e
+        focused_workspace  #1e1e2e #1e1e2e #a6e3a1
+        active_workspace   #1e1e2e #1e1e2e #89b4fa
+        inactive_workspace #1e1e2e #1e1e2e #45475a
+        urgent_workspace   #1e1e2e #1e1e2e #45475a
+        binding_mode       #1e1e2e #1e1e2e #45475a
+    }
 }
 
 bar {
     status_command i3status
-    output DP-1
+    output DP-0
+position top
+    colors {
+        background         #1e1e2e
+        statusline         #cdd6f4
+        focused_statusline #cdd6f4
+        focused_separator  #1e1e2e
+        focused_workspace  #1e1e2e #1e1e2e #a6e3a1
+        active_workspace   #1e1e2e #1e1e2e #89b4fa
+        inactive_workspace #1e1e2e #1e1e2e #45475a
+        urgent_workspace   #1e1e2e #1e1e2e #45475a
+        binding_mode       #1e1e2e #1e1e2e #45475a
+    }
 }
-
 
 # disable capslock
 #exec setxkbmap -option ctrl:nocaps
@@ -258,11 +286,24 @@ exec --no-startup-id "i3-msg 'workspace 2; exec code'"
 ######################################
 
 # Define colors variables:
-# bg tab mode
-set $color1     #1d2021
-set $color2     #d8a657
-set $color3     #fabd3f
-set $color4     #928374
+set $color1     #2E3440
+
+set $color2  #74c7ec
+#set $color2  #cba6f7
+#set $color2  #f2cdcd
+#set $color2  #f5e0dc
+#set $color2  #a6e3a1
+#set $color2  #b4befe
+
+
+set $color3     #81A1C1
+set $color4     #4C566A
+# define colors for windows:
+#class                          border          bground         text            indicator       child_border
+client.focused               $color2           $color1         $color3           $color2         $color2
+client.unfocused             $color4           $color1         $color4           $color2         $color4
+client.focused_inactive      $color4           $color1         $color4           $color4         $color4
+client.urgent                $color3           $color3         $color2           $color2
 
 # define colors for windows:
 #class                          border          bground         text            indicator       child_border
@@ -272,8 +313,9 @@ client.focused_inactive      $color4           $color1         $color4          
 client.urgent                $color3           $color3         $color2           $color2
 
 
+
 # Start XDG autostart .desktop files using dex. See also
-# https://wiki.archlinux.org/index.php/XDG_Autostart
+# https://wiki.archlinux.org/index.php/XDG_Au tostart
 exec --no-startup-id dex --autostart --environment i3
 
 # The combination of xss-lock, nm-applet and pactl is a popular choice, so
@@ -305,10 +347,10 @@ tiling_drag modifier titlebar
 #  Window Resizing           #
 ##############################
 # resize window (you can also use the mouse for that):
-bindsym $mod+Ctrl+h resize grow width 5 px or 5 ppt
-bindsym $mod+Ctrl+j resize shrink height 5 px or 5 ppt
-bindsym $mod+Ctrl+k resize grow height 5 px or 5 ppt
-bindsym $mod+Ctrl+l resize shrink width 5 px or 5 ppt
+bindsym $mod+Ctrl+n resize grow width 5 px or 5 ppt
+bindsym $mod+Ctrl+e resize shrink height 5 px or 5 ppt
+bindsym $mod+Ctrl+i resize grow height 5 px or 5 ppt
+bindsym $mod+Ctrl+a resize shrink width 5 px or 5 ppt
 
 #new_window 1pixel
 
