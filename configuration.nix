@@ -1,36 +1,82 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, ... }:
-
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ./packages.nix
-    ];
+  config,
+  pkgs,
+  ...
+}: {
+
+  virtualisation.virtualbox.host.enable = true;
+   users.extraGroups.vboxusers.members = [ "e" ];
+
+# Set the default browser via xdg-settings
+environment.variables = {
+  XDG_DEFAULT_BROWSER = "firefox.desktop";  # Replace with your preferred browser's .desktop file
+};
 
 
-nix.settings.experimental-features = [ "nix-command" "flakes" ];
- 
-  # Bootloader.
-  boot.loader.grub = {
+
+xdg.portal.config.common.default = "*";
+
+services.flatpak.enable = true;
+xdg.portal.enable = true;
+
+services.clipmenu.enable = true;
+services.tor.enable = true;
+
+networking.firewall.enable = true;
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ./packages.nix
+##   ./modules/libvirt.nix
+    ./nvidia.nix
+./vfio.nix
+  ];
+
+
+
+
+  programs.thunar.enable = true;
+  programs.xfconf.enable = true;
+  services.udisks2.enable = true;
+  services.devmon.enable = true;
+
+  programs.thunar.plugins = with pkgs.xfce; [
+    thunar-archive-plugin
+    thunar-volman
+  ];
+
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    # Add any missing dynamic libraries for unpackaged programs
+    # here, NOT in environment.systemPackages
+  ];
+
+  services.gvfs.enable = true; # Mount, trash, and other functionalities
+  # services.tumbler.enable = true; # Thumbnail support for images
+
+
+  nix.settings.experimental-features = ["nix-command" "flakes"];
+
+  
+boot.loader.grub = {
     enable = true;
     device = "/dev/nvme0n1";
-    extraConfig = ''
-      set theme=/boot/grub/themes/bsol/theme.txt
-    '';
-  };
+ };
+
+  boot.kernelParams = [ "amd_iommu=on" "iommu=pt" ];
+ # boot.kernelModules = [ "kvm-amd" "vfio-pci" "vfio" ];
+  boot.kernelModules = [ "kvm-amd"];
 
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
+  networking.hostName = "nixos";
 
-
-  networking.hostName = "nixos"; # Define your hostname.
 
   # Enable networking
   networking.networkmanager.enable = true;
+
+systemd.services.NetworkManager-wait-online.enable = pkgs.lib.mkForce false;
+
 
   # Set your time zone.
   time.timeZone = "Europe/Prague";
@@ -38,31 +84,22 @@ nix.settings.experimental-features = [ "nix-command" "flakes" ];
   # Select internationalisation properties.
   i18n.defaultLocale = "en_GB.UTF-8";
 
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "cs_CZ.UTF-8";
-    LC_IDENTIFICATION = "cs_CZ.UTF-8";
-    LC_MEASUREMENT = "cs_CZ.UTF-8";
-    LC_MONETARY = "cs_CZ.UTF-8";
-    LC_NAME = "cs_CZ.UTF-8";
-    LC_NUMERIC = "cs_CZ.UTF-8";
-    LC_PAPER = "cs_CZ.UTF-8";
-    LC_TELEPHONE = "cs_CZ.UTF-8";
-    LC_TIME = "cs_CZ.UTF-8";
-  };
 
   services.xserver.enable = true;
-  services.xserver.displayManager.sddm.enable = true; 
-  services.xserver.windowManager.i3.enable = true; 
+  services.xserver.windowManager.i3.enable = true;
+  #services.displayManager.sddm.enable = true;
+  #services.xserver.desktopManager.plasma5.enable = true;
   services.xserver = {
-    layout = "us";
+    xkb.layout = "us";
   };
 
-   hardware.bluetooth.enable = true;
+services.gnome.gnome-keyring.enable = true;
+
+  hardware.bluetooth.enable = true;
 
   # Enable sound with pipewire.
-  sound.enable = true;
   hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
+   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -70,60 +107,25 @@ nix.settings.experimental-features = [ "nix-command" "flakes" ];
     pulse.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.e = {
     isNormalUser = true;
     description = "e";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = ["networkmanager" "wheel" "libvirtd" "dialout"];
   };
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-
-# automatically clear old configs
-nix.gc = {
- automatic = true;
- dates = "weekly";
- options = "--delete-older-than 30d";
-};
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
 
 
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
+  services.udev.packages = [ pkgs.udev ];
+  services.udev.extraRules = ''
+    SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", GROUP="dialout", MODE="0660"
+  '';
 
 
-
-	 #networking.firewall.enable = true;
-
-
-
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
-
+  system.stateVersion = "23.11";
 }
